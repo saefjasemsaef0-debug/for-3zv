@@ -1,0 +1,218 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Cairo', sans-serif;
+}
+
+body {
+    background: #080507;
+    color: #f1f1f1;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(255, 77, 109, 0.15) 0%, rgba(13, 11, 15, 0) 70%);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    pointer-events: none;
+    animation: pulseGlow 4s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.5; }
+    100% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+}
+
+.container {
+    background: rgba(18, 14, 20, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 77, 109, 0.2);
+    padding: 35px;
+    border-radius: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 77, 109, 0.1);
+    width: 90%;
+    max-width: 480px;
+    text-align: center;
+    position: relative;
+    z-index: 10;
+}
+
+/* مكان القطة والفقاعة فوق الكلام */
+.cat-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    animation: floatCat 3s ease-in-out infinite alternate;
+}
+
+.cat-svg-wrapper {
+    width: 60px;
+    height: 60px;
+    filter: drop-shadow(0 4px 10px rgba(255,255,255,0.2));
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.cat-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.speech-bubble {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 77, 109, 0.3);
+    padding: 10px 16px;
+    border-radius: 14px;
+    max-width: 280px;
+    font-size: 0.9rem;
+    color: #f1f1f1;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+    position: relative;
+    text-align: right;
+    opacity: 0;
+    transform: scale(0.8);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.speech-bubble.show {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* شريط التقدم */
+.progress-bar {
+    width: 100%;
+    height: 4px;
+    background: #221a22;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    overflow: hidden;
+}
+
+#progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4d6d, #ff8fa3);
+    transition: width 0.4s ease;
+}
+
+h2 {
+    color: #fff;
+    margin-bottom: 25px;
+    font-size: 1.35rem;
+    line-height: 1.6;
+    font-weight: 600;
+}
+
+.options {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 15px;
+}
+
+button.option-btn {
+    background-color: #1c151c;
+    color: #fff;
+    border: 1px solid rgba(255, 77, 109, 0.25);
+    padding: 15px 20px;
+    border-radius: 14px;
+    font-size: 1.05rem;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    font-family: 'Cairo', sans-serif;
+}
+
+button.option-btn:hover {
+    background-color: #ff4d6d;
+    color: #fff;
+    border-color: #ff4d6d;
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 77, 109, 0.4);
+}
+
+.glowing-btn {
+    animation: softGlow 2s infinite alternate;
+}
+
+@keyframes softGlow {
+    0% { box-shadow: 0 0 10px rgba(255, 77, 109, 0.1); }
+    100% { box-shadow: 0 0 25px rgba(255, 77, 109, 0.4); }
+}
+
+/* شاشة المزعج السوداء */
+.prank-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.prank-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* لوحة تتبع الإجابات الخاصة بك (أدمن) */
+.admin-panel {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    background: rgba(18, 14, 20, 0.95);
+    border: 1px solid rgba(255, 77, 77, 0.4);
+    padding: 16px;
+    border-radius: 14px;
+    width: 280px;
+    z-index: 1000;
+    display: none;
+    font-size: 0.85rem;
+    text-align: right;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
+}
+
+.admin-panel h3 {
+    color: #ff4d6d;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.heart-icon {
+    font-size: 55px;
+    margin-bottom: 15px;
+    animation: heartbeat 1.5s infinite;
+}
+
+@keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.15); }
+}
+
+@keyframes floatCat {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-4px); }
+}

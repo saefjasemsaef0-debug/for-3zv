@@ -3,49 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كويز</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #0f172a;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .quiz-card {
-            background-color: #1e293b;
-            padding: 30px;
-            border-radius: 16px;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-        }
-        h2 { margin-bottom: 25px; font-size: 1.3rem; line-height: 1.6; }
-        .options { display: flex; flex-direction: column; gap: 12px; }
-        button {
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            background-color: #3b82f6;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        button:hover { background-color: #2563eb; }
-    </style>
+    <title>مفاجأة لعيون عزف 🤍</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="quiz-card" id="quiz-container">
-        <h2 id="question">جاري تحميل الأسئلة...</h2>
-        <div class="options" id="options-container"></div>
+
+    <!-- مشغل يوتيوب للخلفية الصوتية -->
+    <div id="youtube-audio-container" style="display:none;">
+        <iframe id="yt-player" width="1" height="1" src="https://www.youtube.com/embed/YOUR_VIDEO_ID?enablejsapi=1&autoplay=1&loop=1" allow="autoplay"></iframe>
     </div>
+
+    <div class="ambient-glow"></div>
+
+    <div class="container">
+        <!-- القطة البيضاء الكيوت صارت فوق الكلام -->
+        <div class="cat-container">
+            <div class="speech-bubble" id="speechBubble">جاري التحميل..</div>
+            <div class="cat-svg-wrapper">
+                <svg class="cat-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <!-- أذان القطة البيضاء -->
+                    <polygon points="20,40 10,10 40,25" fill="#fdfdfd" stroke="#ddd" stroke-width="2"/>
+                    <polygon points="25,35 18,17 35,27" fill="#ffb6c1"/>
+                    <polygon points="80,40 90,10 60,25" fill="#fdfdfd" stroke="#ddd" stroke-width="2"/>
+                    <polygon points="75,35 82,17 65,27" fill="#ffb6c1"/>
+                    <!-- وجه القطة الأبيض -->
+                    <circle cx="50" cy="55" r="30" fill="#ffffff" stroke="#e0e0e0" stroke-width="2"/>
+                    <!-- العيون اللطيفة -->
+                    <ellipse cx="40" cy="50" rx="4" ry="6" fill="#333"/>
+                    <ellipse cx="60" cy="50" rx="4" ry="6" fill="#333"/>
+                    <!-- الخشم والوردي -->
+                    <polygon points="50,60 47,56 53,56" fill="#ff4d6d"/>
+                    <line x1="50" y1="60" x2="50" y2="64" stroke="#ccc" stroke-width="1.5"/>
+                    <path d="M 45,66 Q 50,70 55,66" stroke="#ccc" stroke-width="1.5" fill="none"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- شاشة الأسئلة -->
+        <div id="quiz-screen" class="screen">
+            <div class="progress-bar"><div id="progress-fill" style="width: 25%;"></div></div>
+            <h2 id="question-text">جارِ التحميل...</h2>
+            <div class="options" id="options-container"></div>
+        </div>
+
+        <!-- شاشة رسالة البزونة بالنص -->
+        <div id="middle-screen" class="screen" style="display: none;">
+            <div class="heart-icon">🐾</div>
+            <p id="middle-msg-text" style="font-size: 1.15rem; line-height: 1.8; color: #e1e1e1; margin-bottom: 25px;"></p>
+            <button class="option-btn glowing-btn" onclick="goToFinalGift()">اضغطي هنا لجائزتج النهائية ✨</button>
+        </div>
+
+        <!-- شاشة الهدية النهائية والديسكورد -->
+        <div id="result-screen" class="screen" style="display: none;">
+            <div class="heart-icon">🎁</div>
+            <h2 style="color: #fff; margin-bottom: 15px;">مفاجأة الج!</h2>
+            <p id="final-message" style="font-size: 1.1rem; color: #aaa; line-height: 1.6; margin-bottom: 25px;">اخر شغلة بقت دوسي على هذا الزر و ارجعي للدسكورد ❤️</p>
+            <a id="discord-btn" href="https://discord.com" target="_blank" class="option-btn glowing-btn" style="text-decoration: none; display: inline-block;">استلمي الهدية (ديسكورد نيترو) 🚀</a>
+        </div>
+    </div>
+
+    <!-- شاشة المزعج السوداء (Prank Screen) -->
+    <div id="prank-screen" class="prank-overlay">
+        <h1 style="color: #ff4d4d; font-size: 2.5rem; margin-bottom: 10px;">عجباً! 🤨</h1>
+        <p style="color: #fff; font-size: 1.2rem;">شنو مزعج هااا؟ اتفضل العواقب.. جاري فرمتة الموقع 😂</p>
+        <button onclick="closePrank()" style="margin-top: 20px; background: #fff; color: #000; border: none; padding: 12px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; font-family: 'Cairo', sans-serif;">توبة ما أتعودها 🏃‍♂️</button>
+    </div>
+
+    <!-- لوحة المراقبة السرية الخاصة بك (تظهر بضغط حرف L) -->
+    <div id="admin-tracker" class="admin-panel">
+        <h3>🔍 لوحة متابعة إجابات عزف</h3>
+        <div id="tracker-content">بعدها ما جاوبت شي..</div>
+        <small style="color: #777; display:block; margin-top:8px;">اضغط L مرة ثانية للإخفاء</small>
+    </div>
+
     <script src="script.js"></script>
 </body>
 </html>
